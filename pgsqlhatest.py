@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-############################### HAtester.py #####################################
+############################### pgsqlhatest.py #####################################
 #     Version 2.2    Muhammad Anwar, Tech Support Pakistan (2012-2022)
 #
 # Program to test reads and writes in a PostgreSQL HA Cluster, including
@@ -11,22 +11,22 @@
 #
 # sudo apt install -y postgresql-client python3-psycopg2
 #
-# 2) Target table HATEST must have been created in advance:
+# 2) Target table PGSQLHATEST must have been created in advance:
 #
-# psql -h your_db_server -p 5432 -U postgres -c "CREATE TABLE HATEST (TM TIMESTAMP);"
-# psql -h your_bd_server -p 5432 -U postgres -c "CREATE UNIQUE INDEX idx_hatext ON hatest (tm desc);"
+# psql -h your_db_server -p 5432 -U postgres -c "CREATE TABLE PGSQLHATEST (TM TIMESTAMP);"
+# psql -h your_bd_server -p 5432 -U postgres -c "CREATE UNIQUE INDEX idx_pgsqlhatext ON pgsqlhatest (tm desc);"
 #
 # 3) Monitor replication using:
 #
-# psql -h your_db_server -p 5432 -c "SELECT tm FROM hatest ORDER BY tm DESC LIMIT 1;"
+# psql -h your_db_server -p 5432 -c "SELECT tm FROM pgsqlhatest ORDER BY tm DESC LIMIT 1;"
 
 import sys
 
 # CONNECTION DETAILS
-host = "your_db_server_name_or_ip"
+host = "LOCALHOST_OR_HAPROXY_IP"
 dbname = "postgres"
 user = "postgres"
-password = "replace_with_postgres_password"
+password = "TypeYourPasswordHere"
 connect_timeout = 5
 # Port number can be optionally provided as first argument
 if len(sys.argv)>1 and int(sys.argv[1]):
@@ -38,16 +38,16 @@ else:
 connectionString = "host=%s port=%i dbname=%s user=%s password=%s connect_timeout=%i" % (host, port, dbname, user, password, connect_timeout)
 
 # Execute Insert statement against table if doDML is true.
-# create a table in advance: 
+# create a table in advance:
 doDML = True
 
-# USAGE 
+# USAGE
 #
 # - Execution for writes:
-#    ./HAtester.py 5000
+#    ./pgsqlhatest.py 5000
 #
 # - Execution for reads:
-#    ./HAtester.py 5001
+#    ./pgsqlhatest.py 5001
 #
 # - Reconnection:
 #    Ctrl+C will trigger a new connection to test load balancing.
@@ -84,7 +84,7 @@ if __name__ == "__main__":
             if (rows[0] == False):
                print (" Working with:   MASTER - %s" % rows[1]),
                if doDML:
-                  cur.execute("INSERT INTO HATEST VALUES(CURRENT_TIMESTAMP) RETURNING TM")
+                  cur.execute("INSERT INTO PGSQLHATEST VALUES(CURRENT_TIMESTAMP) RETURNING TM")
                   if cur.rowcount == 1 :
                      conn.commit()
                      tmrow = str(cur.fetchone()[0])
@@ -94,12 +94,11 @@ if __name__ == "__main__":
             else:
                print (" Working with:    REPLICA - %s" % rows[1]),
                if doDML:
-                  cur.execute("SELECT MAX(TM) FROM HATEST")
+                  cur.execute("SELECT MAX(TM) FROM PGSQLHATEST")
                   row = cur.fetchone()
                   print ("     Retrived: %s\n" % str(row[0]))
                else:
                   print ("No Attempt to retrive data")
-
          except:
             print ("Trying to connect")
             if conn is not None:
@@ -109,3 +108,4 @@ if __name__ == "__main__":
                  cur = conn.cursor()
 
    conn.close()
+  
