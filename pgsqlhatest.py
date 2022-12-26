@@ -23,7 +23,7 @@
 import sys
 
 # CONNECTION DETAILS
-host = "LOCALHOST_OR_HAPROXY_IP"
+host = "TypeHAProxyIPHere"
 dbname = "postgres"
 user = "postgres"
 password = "TypeYourPasswordHere"
